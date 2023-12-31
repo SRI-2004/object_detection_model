@@ -1,7 +1,4 @@
-"""
-Implementation of Yolo Loss Function from the original yolo paper
 
-"""
 
 import torch
 import torch.nn as nn
@@ -9,19 +6,11 @@ from utils import intersection_over_union
 
 
 class YoloLoss(nn.Module):
-    """
-    Calculate the loss for yolo (v1) model
-    """
-
+    
     def __init__(self, S=7, B=2, C=20):
         super(YoloLoss, self).__init__()
         self.mse = nn.MSELoss(reduction="sum")
 
-        """
-        S is split size of image (in paper 7),
-        B is number of boxes (in paper 2),
-        C is number of classes (in paper and VOC dataset is 20),
-        """
         self.S = S
         self.B = B
         self.C = C
@@ -45,12 +34,6 @@ class YoloLoss(nn.Module):
         iou_maxes, bestbox = torch.max(ious, dim=0)
         exists_box = target[..., 20].unsqueeze(3)  # in paper this is Iobj_i
 
-        # ======================== #
-        #   FOR BOX COORDINATES    #
-        # ======================== #
-
-        # Set boxes with no object in them to 0. We only take out one of the two
-        # predictions, which is the one with highest Iou calculated previously.
         box_predictions = exists_box * (
             (
                 bestbox * predictions[..., 26:30]
@@ -85,9 +68,6 @@ class YoloLoss(nn.Module):
             torch.flatten(exists_box * target[..., 20:21]),
         )
 
-        # ======================= #
-        #   FOR NO OBJECT LOSS    #
-        # ======================= #
 
         #max_no_obj = torch.max(predictions[..., 20:21], predictions[..., 25:26])
         #no_object_loss = self.mse(
@@ -104,10 +84,6 @@ class YoloLoss(nn.Module):
             torch.flatten((1 - exists_box) * predictions[..., 25:26], start_dim=1),
             torch.flatten((1 - exists_box) * target[..., 20:21], start_dim=1)
         )
-
-        # ================== #
-        #   FOR CLASS LOSS   #
-        # ================== #
 
         class_loss = self.mse(
             torch.flatten(exists_box * predictions[..., :20], end_dim=-2,),
