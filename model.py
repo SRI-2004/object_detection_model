@@ -1,17 +1,8 @@
-"""
-Implementation of Yolo (v1) architecture
-with slight modification with added BatchNorm.
-"""
+
 
 import torch
 import torch.nn as nn
 
-"""
-Information about architecture config:
-Tuple is structured by (kernel_size, filters, stride, padding)
-"M" is simply maxpooling with stride 2x2 and kernel 2x2
-List is structured by tuples and lastly int with number of repeats
-"""
 
 architecture_config = [
     (7, 64, 2, 3),
@@ -108,7 +99,6 @@ class Yolov1(nn.Module):
     def _create_fcs(self, split_size, num_boxes, num_classes):
         S, B, C = split_size, num_boxes, num_classes
 
-        # In original paper this should be
         # nn.Linear(1024*S*S, 4096),
         # nn.LeakyReLU(0.1),
         # nn.Linear(4096, S*S*(B*5+C))
